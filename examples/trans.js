@@ -13,7 +13,7 @@ var angle       = 10;   // in degree above horizont
 
 var iflag = swisseph.SEFLG_SPEED | swisseph.SEFLG_MOSEPH | swisseph.SEFLG_TOPOCTR;
 
-swisseph.swe_set_ephe_path (__dirname + '/../ephe');
+swisseph.swe_set_ephe_path (require('path').join(__dirname, '../ephe'));
 swisseph.swe_set_topo(longitude, latitude, altitude);
 
 var year = {

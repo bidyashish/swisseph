@@ -7,7 +7,7 @@ console.log ('Date:', date);
 var flag = swisseph.SEFLG_SPEED | swisseph.SEFLG_MOSEPH;
 
 // path to ephemeris data
-swisseph.swe_set_ephe_path (__dirname + '/../ephe');
+swisseph.swe_set_ephe_path (require('path').join(__dirname, '../ephe'));
 
 strtime = function (value) {
 	var hour = Math.floor (value);

@@ -4,7 +4,7 @@ import swisseph from '../lib/swisseph.js'
 describe('Swiss Ephemeris', () => {
   beforeAll(() => {
     // Set ephemeris path
-    swisseph.swe_set_ephe_path(__dirname + '/../ephe')
+    swisseph.swe_set_ephe_path(require('path').join(__dirname, '../ephe'))
   })
 
   it('should get Swiss Ephemeris version', () => {

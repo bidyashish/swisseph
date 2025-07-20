@@ -9,8 +9,8 @@
   Authors: Dieter Koch and Alois Treindl, Astrodienst Zurich
 
 ************************************************************/
-/* Copyright (C) 1997 - 2008 Astrodienst AG, Switzerland.  All rights reserved.
-  
+/* Copyright (C) 1997 - 2021 Astrodienst AG, Switzerland.  All rights reserved.
+
   License conditions
   ------------------
 
@@ -25,17 +25,17 @@
   system. The software developer, who uses any part of Swiss Ephemeris
   in his or her software, must choose between one of the two license models,
   which are
-  a) GNU public license version 2 or later
+  a) GNU Affero General Public License (AGPL)
   b) Swiss Ephemeris Professional License
 
   The choice must be made before the software developer distributes software
   containing parts of Swiss Ephemeris to others, and before any public
   service using the developed software is activated.
 
-  If the developer choses the GNU GPL software license, he or she must fulfill
+  If the developer choses the AGPL software license, he or she must fulfill
   the conditions of that license, which includes the obligation to place his
-  or her whole software project under the GNU GPL or a compatible license.
-  See http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+  or her whole software project under the AGPL or a compatible license.
+  See https://www.gnu.org/licenses/agpl-3.0.html
 
   If the developer choses the Swiss Ephemeris Professional license,
   he must follow the instructions as found in http://www.astro.com/swisseph/ 
@@ -81,6 +81,12 @@
   typedef off_t off_t64;
   #define FSEEK fseeko
   #define FTELL ftello
+//  #ifdef __ANDROID_API__ 
+//    #undef FSEEK
+//    #undef FTELL
+//    #define FSEEK fseek
+//    #define FTELL ftell
+//  #endif
 #endif
 
 #define DEBUG_DO_SHOW	FALSE
@@ -945,7 +951,7 @@ int swi_open_jpl_file(double *ss, char *fname, char *fpath, char *serr)
   return retc;
 }
 
-int32 swi_get_jpl_denum()
+int32 swi_get_jpl_denum(void)
 {
   return js->eh_denum;
 }

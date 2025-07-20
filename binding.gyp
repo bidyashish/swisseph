@@ -15,7 +15,13 @@
       'dependencies': [
       	'deps/swisseph/swisseph.gyp:swissephz'
       ],
-      "include_dirs": ["<!(node -e \"require('nan')\")"]
+      "include_dirs": [
+        "<!(node -e \"require('nan')\")",
+        "deps/swisseph"
+      ],
+      "cflags": [
+        "-Wno-unused-result"
+      ]
     }
   ]
 }

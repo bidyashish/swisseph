@@ -13,6 +13,7 @@
   Problem reports can be sent to victor.reijs@gmail.com or dieter@astro.ch
   
   Copyright (c) Victor Reijs, 2008
+  Copyright (C) 1997 - 2021 Astrodienst AG, Switzerland.  All rights reserved.
 
   License conditions
   ------------------
@@ -28,17 +29,17 @@
   system. The software developer, who uses any part of Swiss Ephemeris
   in his or her software, must choose between one of the two license models,
   which are
-  a) GNU public license version 2 or later
+  a) GNU Affero General Public License (AGPL)
   b) Swiss Ephemeris Professional License
 
   The choice must be made before the software developer distributes software
   containing parts of Swiss Ephemeris to others, and before any public
   service using the developed software is activated.
 
-  If the developer choses the GNU GPL software license, he or she must fulfill
+  If the developer choses the AGPL software license, he or she must fulfill
   the conditions of that license, which includes the obligation to place his
-  or her whole software project under the GNU GPL or a compatible license.
-  See http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+  or her whole software project under the AGPL or a compatible license.
+  See https://www.gnu.org/licenses/agpl-3.0.html
 
   If the developer choses the Swiss Ephemeris Professional license,
   he must follow the instructions as found in http://www.astro.com/swisseph/ 
@@ -50,11 +51,13 @@
   Among other things, the License requires that the copyright notices and
   this notice be preserved on all copies.
 
+  Authors of the Swiss Ephemeris: Dieter Koch and Alois Treindl
+
   The authors of Swiss Ephemeris have no control or influence over any of
   the derived works, i.e. over software or services created by other
   programmers which use Swiss Ephemeris functions.
 
-  The names of the authors or of the copyright holder must not
+  The names of the authors or of the copyright holder (Astrodienst) must not
   be used for promoting any software, product or service which uses or contains
   the Swiss Ephemeris. This copyright notice is the ONLY place where the
   names of the authors can legally appear, except in cases where they have
@@ -63,6 +66,7 @@
   The trademarks 'Swiss Ephemeris' and 'Swiss Ephemeris inside' may be used
   for promoting such software, products or services.
 */
+
 
 #include "swephexp.h"
 #include "sweph.h"
@@ -75,7 +79,7 @@
 #define BNIGHT_FACTOR   1.0
 #define PI		M_PI
 #define Min2Deg   (1.0 / 60.0)
-#define DEBUG  0
+#define SWEHEL_DEBUG  0
 #define DONE  1
 #define MaxTryHours   4 
 #define TimeStepDefault	1
@@ -277,7 +281,7 @@ static double OpticFactor(double Bback, double kX, double *dobs, double JDNDaysU
   Fa = pow((Pst / OpticDia), 2);
   Fr = (1 + 0.03 * pow((OpticMag * ObjectSize / CVA(Bback, SNi, helflag)), 2)) / pow(SNi, 2);
   Fm = pow(OpticMag, 2);
-#if DEBUG
+#if SWEHEL_DEBUG
   fprintf(stderr, "Pst=%f\n", Pst);
   fprintf(stderr, "Fb =%f\n", Fb);
   fprintf(stderr, "Fe =%f\n", Fe);
@@ -472,10 +476,10 @@ if (eventflag & SE_CALC_RISE) {
   /* semidiurnal arc of sun */
   sda = acos(-tan(dgeo[1] * DEGTORAD) * tan(xx[1] * DEGTORAD)) * RADTODEG;
   /* rough rising and setting times */
-if (eventflag & SE_CALC_RISE)
-  tjdrise = tjdnoon - sda / 360.0;
-else
-  tjdrise = tjdnoon + sda / 360.0;
+  if (eventflag & SE_CALC_RISE)
+    tjdrise = tjdnoon - sda / 360.0;
+  else
+    tjdrise = tjdnoon + sda / 360.0;
   /*ph->tset = tjd_start + sda / 360.0;*/
   /* now calculate more accurate rising and setting times.
    * use vertical speed in order to determine crossing of the horizon  
@@ -1422,7 +1426,7 @@ if ((0)) {
   /*Bsk = Bsk / CorrFactor1;*/
   Bsk = Bsk * CorrFactor1;
   Th = C1 * pow(1 + sqrt(C2 * Bsk), 2) * CorrFactor2;
-#if DEBUG
+#if SWEHEL_DEBUG
   fprintf(stderr, "Bsk=%f, ", Bsk);
   fprintf(stderr, "kX =%f, ", kX);
   fprintf(stderr, "Th =%f, ", Th);
@@ -1505,7 +1509,7 @@ int32 CALL_CONV swe_vis_limit_mag(double tjdut, double *dgeo, double *datm, doub
     if (ObjectLoc(tjdut, dgeo, datm, "moon", 1, helflag, &AziM, serr) == ERR)
       return ERR;
   }
-#if DEBUG
+#if SWEHEL_DEBUG
 {
   int i;
   for (i = 0; i < 6;i++)
@@ -1812,7 +1816,7 @@ static void strcpy_VBsafe(char *sout, char *sin)
   sp = sin; 
   sp2 = sout;
   /* note, star name may begin with comma, such as ",zePsc" */
-  while((isalnum(*sp) || *sp == ' ' || *sp == '-' || *sp == ',') && iw < 30) {
+  while((isalnum((int) *sp) || *sp == ' ' || *sp == '-' || *sp == ',') && iw < 30) {
     *sp2 = *sp;
     sp++; sp2++; iw++;
   }
@@ -3160,8 +3164,8 @@ static int32 heliacal_ut_vis_lim(double tjd_start, double *dgeo, double *datm, d
 {
   int i;
   double d, darr[10], direct = 1, tjd, tday;
-  int32 epheflag, retval = OK, helflag2;
-  int32 iflag, ipl;
+  int32 retval = OK, helflag2;
+  int32 ipl;
   int32 TypeEvent = TypeEventIn;
   char serr[AS_MAXCH];
   for (i = 0; i < 10; i++)
@@ -3169,10 +3173,6 @@ static int32 heliacal_ut_vis_lim(double tjd_start, double *dgeo, double *datm, d
   *dret = tjd_start;
   *serr = '\0';
   ipl = DeterObject(ObjectName);
-  epheflag = helflag & (SEFLG_JPLEPH|SEFLG_SWIEPH|SEFLG_MOSEPH);
-  iflag = SEFLG_TOPOCTR | SEFLG_EQUATORIAL | epheflag;
-  if (!(helflag & SE_HELFLAG_HIGH_PRECISION)) 
-    iflag |= SEFLG_NONUT | SEFLG_TRUEPOS;
   if (ipl == SE_MERCURY)
     tjd = tjd_start - 30;
   else
@@ -3251,8 +3251,7 @@ static int32 moon_event_vis_lim(double tjdstart, double *dgeo, double *datm, dou
   double tjd, trise;
   char serr[AS_MAXCH];
   char ObjectName[30];
-  int32 iflag, ipl, retval, helflag2, direct;
-  int32 epheflag = helflag & (SEFLG_JPLEPH|SEFLG_SWIEPH|SEFLG_MOSEPH);
+  int32 ipl, retval, helflag2, direct;
   dret[0] = tjdstart; /* will be returned in error case */
   if (TypeEvent == 1 || TypeEvent == 2) {
     if (serr_ret != NULL)
@@ -3261,9 +3260,6 @@ static int32 moon_event_vis_lim(double tjdstart, double *dgeo, double *datm, dou
   }
   strcpy(ObjectName, "moon");
   ipl = SE_MOON;
-  iflag = SEFLG_TOPOCTR | SEFLG_EQUATORIAL | epheflag;
-  if (!(helflag & SE_HELFLAG_HIGH_PRECISION))
-    iflag |= SEFLG_NONUT|SEFLG_TRUEPOS;
   helflag2 = helflag;
   helflag2 &= ~SE_HELFLAG_HIGH_PRECISION;
   /* check Synodic/phase Period */
@@ -3388,7 +3384,7 @@ static int32 heliacal_ut(double JDNDaysUTStart, double *dgeo, double *datm, doub
 */
 int32 CALL_CONV swe_heliacal_ut(double JDNDaysUTStart, double *dgeo, double *datm, double *dobs, char *ObjectNameIn, int32 TypeEvent, int32 helflag, double *dret, char *serr_ret)
 {
-  int32 retval, Planet, itry;
+  int32 retval, Planet;
   char ObjectName[AS_MAXCH], serr[AS_MAXCH], s[AS_MAXCH];
   double tjd0 = JDNDaysUTStart, tjd, dsynperiod, tjdmax, tadd;
   int32 MaxCountSynodicPeriod = MAX_COUNT_SYNPER;
@@ -3486,11 +3482,8 @@ int32 CALL_CONV swe_heliacal_ut(double JDNDaysUTStart, double *dgeo, double *dat
   /* 
    * this is the outer loop over n synodic periods 
    */
-  tjd = tjd0;
   retval = -2;  /* indicates that another synodic period has to be done */
-  for (itry = 0; 
-       tjd < tjdmax && retval == -2; 
-       itry++, tjd += tadd) {
+  for (tjd = tjd0; tjd < tjdmax && retval == -2; tjd += tadd) {
     *serr = '\0';
     retval = heliacal_ut(tjd, dgeo, datm, dobs, ObjectName, TypeEvent, helflag, dret, serr);
     /* if resulting event date < start date for search (tjd0): retry starting
