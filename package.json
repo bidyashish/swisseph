@@ -20,15 +20,20 @@
     "nan": "^2.23.0",
     "node-gyp": "^11.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  },
   "engines": {
-    "node": ">=8"
+    "node": ">=18"
   },
   "scripts": {
     "install": "node-gyp rebuild",
     "test": "node test/test.js && node test/datetime.js",
     "test:main": "node test/test.js",
     "test:datetime": "node test/datetime.js",
+    "test:vitest": "vitest",
+    "test:vitest:run": "vitest run",
+    "test:vitest:ui": "vitest --ui",
     "start": "node app.js",
     "build": "node-gyp rebuild",
     "clean": "node-gyp clean",
