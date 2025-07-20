@@ -1,11 +1,24 @@
 {
-  "author": "mivion",
   "name": "swisseph",
-  "description": "Swiss Ephemeris binding for node.js",
   "version": "0.5.18",
-  "homepage": "http://github.com/mivion/swisseph",
+  "description": "Swiss Ephemeris binding for Node.js - High precision astronomy and astrology calculations",
+  "author": {
+    "name": "mivion",
+    "url": "https://github.com/mivion"
+  },
+  "maintainers": [
+    {
+      "name": "bidyashish",
+      "url": "https://github.com/bidyashish"
+    }
+  ],
+  "homepage": "https://github.com/bidyashish/swisseph",
   "repository": {
-    "url": "http://github.com/mivion/swisseph.git"
+    "type": "git",
+    "url": "https://github.com/bidyashish/swisseph.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bidyashish/swisseph/issues"
   },
   "main": "./lib/swisseph.js",
   "types": "./lib/swisseph.d.ts",
@@ -13,7 +26,35 @@
     "swiss",
     "ephemeris",
     "astrology",
-    "astronomy"
+    "astronomy",
+    "planetary",
+    "calculations",
+    "horoscope",
+    "celestial",
+    "astrological",
+    "ephemerides",
+    "planets",
+    "moon",
+    "sun",
+    "stars",
+    "eclipse",
+    "houses",
+    "natal",
+    "charts"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32",
+    "freebsd"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
   ],
   "dependencies": {
     "merge": "^2.1.1",
@@ -21,22 +62,30 @@
     "node-gyp": "^11.2.0"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
     "vitest": "^3.2.4"
-  },
-  "engines": {
-    "node": ">=18"
   },
   "scripts": {
     "install": "node-gyp rebuild",
-    "test": "node test/test.js && node test/datetime.js",
+    "build": "node-gyp rebuild",
+    "clean": "node-gyp clean",
+    "test": "npm run test:legacy && npm run test:vitest:run",
+    "test:legacy": "node test/test.js && node test/datetime.js",
     "test:main": "node test/test.js",
     "test:datetime": "node test/datetime.js",
     "test:vitest": "vitest",
     "test:vitest:run": "vitest run",
     "test:vitest:ui": "vitest --ui",
-    "start": "node app.js",
-    "build": "node-gyp rebuild",
-    "clean": "node-gyp clean",
-    "prepublishOnly": "npm test"
+    "test:coverage": "vitest run --coverage",
+    "lint": "echo 'No linter configured'",
+    "lint:fix": "echo 'No linter configured'",
+    "start": "node examples/astro.js",
+    "example": "node examples/astro.js",
+    "example:planets": "node examples/planets.js",
+    "example:eclipses": "node examples/eclipses.js",
+    "example:stars": "node examples/stars.js",
+    "prepublishOnly": "npm run build && npm test",
+    "prepack": "npm run build",
+    "postpack": "npm run clean"
   }
 }

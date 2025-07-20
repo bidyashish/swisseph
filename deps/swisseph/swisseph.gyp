@@ -24,8 +24,21 @@
       ],
       "cflags": [
         "-w",
-        "-fms-extensions"
-      ]
+        "-fms-extensions",
+        "-Wno-unused-parameter",
+        "-Wno-unused-but-set-parameter",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare"
+      ],
+      "xcode_settings": {
+        "WARNING_CFLAGS": [
+          "-w",
+          "-Wno-unused-parameter",
+          "-Wno-unused-but-set-parameter", 
+          "-Wno-missing-field-initializers",
+          "-Wno-sign-compare"
+        ]
+      }
     }
   ]
 } 

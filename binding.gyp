@@ -20,8 +20,26 @@
         "deps/swisseph"
       ],
       "cflags": [
-        "-Wno-unused-result"
-      ]
+        "-Wno-unused-result",
+        "-Wno-unused-parameter",
+        "-Wno-unused-but-set-parameter",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare"
+      ],
+      "cflags_cc": [
+        "-Wno-unused-parameter",
+        "-Wno-unused-but-set-parameter",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare"
+      ],
+      "xcode_settings": {
+        "WARNING_CFLAGS": [
+          "-Wno-unused-parameter",
+          "-Wno-unused-but-set-parameter", 
+          "-Wno-missing-field-initializers",
+          "-Wno-sign-compare"
+        ]
+      }
     }
   ]
 }

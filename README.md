@@ -1,143 +1,327 @@
-Swiss Ephemeris binding for node.js [![Build Status](https://travis-ci.org/mivion/swisseph.svg?branch=master)](https://travis-ci.org/mivion/swisseph)
-===================================
+# Swiss Ephemeris for Node.js
 
-**NOTE: Need help to mantain this project. Please write me.**
+[![npm version](https://badge.fury.io/js/swisseph.svg)](https://badge.fury.io/js/swisseph)
+[![Node.js CI](https://github.com/bidyashish/swisseph/actions/workflows/ci.yml/badge.svg)](https://github.com/bidyashish/swisseph/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-AGPL%2FGPL-blue.svg)](https://github.com/astrodienst/swisseph)
 
-
-Update: a new update will be released soon.
-
+Swiss Ephemeris binding for Node.js - High precision astronomy and astrology calculations.
 
 ## About
 
-Swiss Ephemeris binding for node.js.
+Swiss Ephemeris binding for Node.js providing accurate astronomical calculations for:
+- Planet positions and movements
+- Lunar and solar eclipses
+- House calculations
+- Fixed stars positions
+- Astrological aspects
+- And much more...
+
+Based on the Swiss Ephemeris library version **2.10.03** by Astrodienst AG.
 
 See [Swiss Ephemeris](http://www.astro.com/swisseph/swephinfo_e.htm) for more details.
 
-Supported platforms: **Mac OS X** | **Windows** | **Linux** | **FreeBSD**
+**Supported platforms:** macOS | Windows | Linux | FreeBSD
 
-## Getting started
+## Installation
 
-To install run:
+### Prerequisites
 
+- Node.js 18 or newer
+- Python 3.x (for compilation)
+- C++ compiler (automatically handled by node-gyp)
+
+### Install via npm
+
+```bash
+npm install swisseph
 ```
-$ npm install swisseph
+
+### Install from source
+
+```bash
+git clone https://github.com/bidyashish/swisseph.git
+cd swisseph
+npm install
+npm run build
 ```
 
-## Requirements
+## Quick Start
 
-From version 0.5.x only nodejs 0.12 or newer supported.
-
-To use with older nodejs version use swisseph 0.4.x or older.
-
-## Version 0.5.x Notes
-
-From version 0.5.x only nodejs 0.12 supported, because of C addons API compatibility.
-
-Also, project splited to [swisseph](https://github.com/mivion/swisseph) and [swisseph-api](https://github.com/mivion/swisseph-api).
-
-[swisseph](https://github.com/mivion/swisseph) responsible only for nodejs binding, but [swisseph-api](https://github.com/mivion/swisseph-api)
-to access over the web.
-
-## Usage
-
-### Getting julian day
+### Basic Usage
 
 ```javascript
-var swisseph = require ('swisseph');
+const swisseph = require('swisseph');
 
-var date = {year: 2015, month: 1, day: 1, hour: 0};
-
-var julday = swisseph.swe_julday (date.year, date.month, date.day, date.hour, swisseph.SE_GREG_CAL);
-
-```
-
-### Getting Sun and Moon position
-
-Example:
-
-```javascript
-var swisseph = require ('swisseph');
+// Set ephemeris data path (optional, uses Moshier by default)
+swisseph.swe_set_ephe_path(__dirname + '/ephe');
 
 // Test date
-var date = {year: 2012, month: 1, day: 1, hour: 0};
-console.log ('Test date:', date);
+const date = { year: 2024, month: 1, day: 1, hour: 0 };
 
-var flag = swisseph.SEFLG_SPEED;
+// Get Julian Day
+swisseph.swe_julday(date.year, date.month, date.day, date.hour, swisseph.SE_GREG_CAL, (julday_ut) => {
+  console.log('Julian Day:', julday_ut);
 
-// path to ephemeris data
-swisseph.swe_set_ephe_path (__dirname + '/../ephe');
+  const flag = swisseph.SEFLG_SPEED | swisseph.SEFLG_MOSEPH;
 
-// Julian day
-swisseph.swe_julday (date.year, date.month, date.day, date.hour, swisseph.SE_GREG_CAL, function (julday_ut) {
-	assert.equal (julday_ut, 2455927.5);
-	console.log ('Julian UT day for date:', julday_ut);
+  // Get Sun position
+  swisseph.swe_calc_ut(julday_ut, swisseph.SE_SUN, flag, (sun) => {
+    console.log('Sun position:', {
+      longitude: sun.longitude,
+      latitude: sun.latitude,
+      distance: sun.distance
+    });
+  });
 
-	// Sun position
-	swisseph.swe_calc_ut (julday_ut, swisseph.SE_SUN, flag, function (body) {
-		assert (!body.error, body.error);
-		console.log ('Sun position:', body);
-	});
-
-	// Moon position
-	swisseph.swe_calc_ut (julday_ut, swisseph.SE_MOON, flag, function (body) {
-		assert (!body.error, body.error);
-		console.log ('Moon position:', body);
-	});
+  // Get Moon position
+  swisseph.swe_calc_ut(julday_ut, swisseph.SE_MOON, flag, (moon) => {
+    console.log('Moon position:', {
+      longitude: moon.longitude,
+      latitude: moon.latitude,
+      distance: moon.distance
+    });
+  });
 });
 ```
 
-For more examples see *examples* and *test* folders.
-
-### Using ecliptic, equatorial or rectangular coordinates
-
-On computing planet, star, node or apside positions, and [using SEFLG_EQUATORIAL or SEFLG_XYZ in flag bits](http://www.astro.com/swisseph/swephprg.htm#_Toc433200761), name of the resulting property will be different from the case with ecliptic coordinates. Run *examples/issue-23.js* in details, please.
-
-### Ephemeris settings
-
-There are 3 different types of ephemeris supported:
-
-- *Steve Moshier* interpolation, covers 3000 BC – 3000 AD, preision 0.1 arcsec, no data files required.
-- *Swiss Ephemeris* is compressed version of DE431, covers 13000 BC - 17000 AD, precision 0.001 arcseconds, requires data files about 90MB. Download from [ftp://www.astro.com/pub/swisseph/ephe](ftp://www.astro.com/pub/swisseph/ephe).
-- JPL NASA ephemeris is the state of the art ephemeris, DE431 covers 13000 BC - 17000 AD, maximum possible precision, requires data files 2.9GB. Download from [ftp://www.astro.com/pub/jplfiles](ftp://www.astro.com/pub/jplfiles).
-
-To use data files download them and put in folder then set path to the ephemeris folder by:
+### Modern ES6+ Usage
 
 ```javascript
-swisseph.swe_set_ephe_path ('/path/to/downloaded/ephemeris');
+import swisseph from 'swisseph';
+
+const calculatePlanet = (julday, planet) => {
+  return new Promise((resolve, reject) => {
+    const flag = swisseph.SEFLG_SPEED | swisseph.SEFLG_MOSEPH;
+    swisseph.swe_calc_ut(julday, planet, flag, (result) => {
+      if (result.error) {
+        reject(new Error(result.error));
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+// Usage with async/await
+async function getPositions() {
+  try {
+    const julday = 2460676.5; // 2024-01-01
+    const sun = await calculatePlanet(julday, swisseph.SE_SUN);
+    const moon = await calculatePlanet(julday, swisseph.SE_MOON);
+    
+    console.log('Sun:', sun);
+    console.log('Moon:', moon);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
 ```
 
-And select ephemeris by setting the flag:
+## API Reference
+
+### Main Calculation Functions
+
+- `swe_calc_ut(julday, planet, flags, callback)` - Calculate planet positions
+- `swe_julday(year, month, day, hour, calendar, callback)` - Convert date to Julian Day
+- `swe_houses(julday, lat, lon, hsys, callback)` - Calculate astrological houses
+- `swe_fixstar_ut(star, julday, flags, callback)` - Calculate fixed star positions
+
+### Available Planets
 
 ```javascript
-
-// for Moshier
-body = swisseph.swe_calc_ut (julday_ut, swisseph.SE_SUN, swisseph.SEFLG_SPEED | swisseph.SEFLG_MOSEPH)
-
-// for Swiss Ephemeris
-body = swisseph.swe_calc_ut (julday_ut, swisseph.SE_SUN, swisseph.SEFLG_SPEED | swisseph.SEFLG_SWIEPH)
-
-// for JPL NASA ephemeris
-body = swisseph.swe_calc_ut (julday_ut, swisseph.SE_SUN, swisseph.SEFLG_SPEED | swisseph.SEFLG_JPLEPH)
-
+swisseph.SE_SUN        // Sun
+swisseph.SE_MOON       // Moon
+swisseph.SE_MERCURY    // Mercury
+swisseph.SE_VENUS      // Venus
+swisseph.SE_MARS       // Mars
+swisseph.SE_JUPITER    // Jupiter
+swisseph.SE_SATURN     // Saturn
+swisseph.SE_URANUS     // Uranus
+swisseph.SE_NEPTUNE    // Neptune
+swisseph.SE_PLUTO      // Pluto
+swisseph.SE_CHIRON     // Chiron
 ```
 
-## Tests
+### Ephemeris Types
 
-To execute tests run from the root folder:
+The library supports three ephemeris types:
 
-> npm test
+1. **Moshier** - Built-in, no external files needed (default)
+2. **Swiss Ephemeris** - High precision, requires data files (~90MB)
+3. **JPL** - Highest precision, requires data files (~2.9GB)
 
-## Documentation
+```javascript
+// Moshier (default)
+const flag = swisseph.SEFLG_MOSEPH;
 
-See [Programming interface](http://www.astro.com/swisseph/swephprg.htm) to the Swiss Ephemeris for more details.
+// Swiss Ephemeris (requires data files)
+const flag = swisseph.SEFLG_SWIEPH;
 
-This javascript programming interface is little different from the original api, basically for return values.
-For more details see src/*.h.
+// JPL (requires data files)
+const flag = swisseph.SEFLG_JPLEPH;
 
-## Feedback
+## Advanced Features
 
-Please feel free to fill [issues](http://github.com/mivion/swisseph/issues) for bugs, erros and features.
+### House Calculations
+
+```javascript
+swisseph.swe_houses(julday, latitude, longitude, 'P', (result) => {
+  console.log('Houses:', result.house);
+  console.log('Ascendant:', result.ascendant);
+  console.log('MC:', result.mc);
+});
+```
+
+### Eclipse Calculations
+
+```javascript
+// Solar eclipse
+swisseph.swe_sol_eclipse_when_glob(julday, 0, 0, (result) => {
+  console.log('Next solar eclipse:', result);
+});
+
+// Lunar eclipse
+swisseph.swe_lun_eclipse_when(julday, 0, 0, (result) => {
+  console.log('Next lunar eclipse:', result);
+});
+```
+
+### Fixed Stars
+
+```javascript
+swisseph.swe_fixstar_ut('Aldebaran', julday, swisseph.SEFLG_MOSEPH, (star) => {
+  console.log('Aldebaran position:', star);
+});
+```
+
+## Testing
+
+The project includes comprehensive tests using both legacy Node.js test runner and modern Vitest.
+
+### Run all tests
+```bash
+npm test
+```
+
+### Run specific test suites
+```bash
+npm run test:main        # Legacy tests
+npm run test:datetime    # Date/time tests  
+npm run test:vitest      # Modern Vitest tests
+npm run test:vitest:run  # Run Vitest in CI mode
+npm run test:vitest:ui   # Run Vitest with UI
+```
+
+### Test with different Node.js versions
+```bash
+# The package is tested on Node.js 18, 20, and 22
+node --version  # Check your version
+npm test
+```
+
+## Development
+
+### Building from source
+```bash
+git clone https://github.com/bidyashish/swisseph.git
+cd swisseph
+npm install
+npm run build
+```
+
+### Available scripts
+```bash
+npm run build       # Build the native module
+npm run clean       # Clean build artifacts
+npm test           # Run all tests
+npm run test:vitest # Run modern tests with Vitest
+```
+
+### Debugging build issues
+```bash
+# Clean everything and rebuild
+npm run clean
+rm -rf node_modules
+npm install
+npm run build
+```
+
+## Examples
+
+See the `examples/` folder for comprehensive usage examples:
+
+- `examples/astro.js` - Basic astronomical calculations
+- `examples/planets.js` - Planet position calculations
+- `examples/eclipses.js` - Eclipse calculations
+- `examples/houses.js` - Astrological house systems
+- `examples/stars.js` - Fixed star positions
+
+## Coordinate Systems
+
+The library supports different coordinate systems:
+
+```javascript
+// Ecliptic coordinates (default)
+const flag = swisseph.SEFLG_MOSEPH;
+
+// Equatorial coordinates
+const flag = swisseph.SEFLG_MOSEPH | swisseph.SEFLG_EQUATORIAL;
+
+// Rectangular coordinates
+const flag = swisseph.SEFLG_MOSEPH | swisseph.SEFLG_XYZ;
+```
+
+## Data Files
+
+### Swiss Ephemeris Files
+Download from: [ftp://www.astro.com/pub/swisseph/ephe](ftp://www.astro.com/pub/swisseph/ephe)
+- Size: ~90MB
+- Precision: 0.001 arcseconds
+- Coverage: 13000 BC - 17000 AD
+
+### JPL Files  
+Download from: [ftp://www.astro.com/pub/jplfiles](ftp://www.astro.com/pub/jplfiles)
+- Size: ~2.9GB
+- Precision: Maximum available
+- Coverage: 13000 BC - 17000 AD
+
+## Version History
+
+- **0.5.18** - Updated to Swiss Ephemeris 2.10.03, improved build system
+- **0.5.9** - Updated to Swiss Ephemeris 2.07.01, added new functions
+- **0.5.0** - Major refactor, Node.js 0.12+ support
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+### Reporting Issues
+
+Please report bugs and feature requests on [GitHub Issues](https://github.com/bidyashish/swisseph/issues).
 
 ## License
 
-The license for this project is the same as original [Swiss Ephemeris](http://www.astro.com/swisseph/swephinfo_e.htm).
+This project is licensed under the same terms as the original Swiss Ephemeris:
+- **AGPL 3.0** for open source projects  
+- **Commercial license** available from Astrodienst AG
+
+See the [Swiss Ephemeris license page](http://www.astro.com/swisseph/swephinfo_e.htm) for details.
+
+## Documentation & Resources
+
+- [Swiss Ephemeris Programming Interface](http://www.astro.com/swisseph/swephprg.htm)
+- [Swiss Ephemeris Documentation](http://www.astro.com/swisseph/swephinfo_e.htm)
+- [Astrodienst AG](http://www.astro.com) - Original authors
+
+---
+
+**Maintained by:** [bidyashish](https://github.com/bidyashish)  
+**Original Author:** [mivion](https://github.com/mivion)
